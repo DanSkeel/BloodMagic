@@ -8,7 +8,4 @@
 @protocol BMInjectable
     <NSObject>
 
-@optional
-- (void)bm_propertyInjected:(NSString *)propertyName value:(id)value;
-
 @end

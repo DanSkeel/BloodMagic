@@ -40,26 +40,14 @@
 
 - (void)collectClasses
 {
-#ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
-    uint classesCount;
-    Class *classes = objc_copyClassList(&classesCount);
-    for (uint index = 0; index < classesCount; index++) {
-        Class nextClass = classes[index];
-        if (class_conformsToProtocol(nextClass, @protocol(NSObject))) {
-            _cachedClasses.push_back(nextClass);
-        }
-    }
-    free(classes);
-#else
     Class parentClass = [NSObject class];
+    
     int numClasses = objc_getClassList(NULL, 0);
-   
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wvla-extension"
-    Class classes[sizeof(Class) * numClasses];
-#pragma clang diagnostic pop   
-   
+    if (numClasses == 0) return;
+    
+    Class *classes = (Class *)malloc(sizeof(Class) * numClasses);
     numClasses = objc_getClassList(classes, numClasses);
+    
     for (NSInteger i = 0; i < numClasses; i++) {
         Class superClass = classes[i];
         do {
@@ -77,7 +65,7 @@
         }
         _cachedClasses.push_back(klass);
     }
-#endif
+    free(classes);
 }
 
 - (class_list_t *)collectForProtocol:(Protocol *)protocol
